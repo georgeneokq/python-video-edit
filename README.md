@@ -1,4 +1,4 @@
-# Python-Video-Edit
+% Python-Video-Edit
 
 ## What's this?
 A python program I created to synchronize audio of video files.
