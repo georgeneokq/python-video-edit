@@ -6,7 +6,7 @@ A python program I created to synchronize audio of video files.
 
 I was watching a video and the audio was obviously lacking behind. I wanted to find a simple console program to adjust the audio as I didn't want to download some huge software just to complete the task. I couldn't find one that suited my needs (or maybe I just didn't search hard enough) so I decided to take matters into my own hands.
 
-This program has only been tested for Windows.
+All scripts are built to work only on Windows.
 
 ## Usage
 python main.py [--seek] SEEK [--video-path] VIDEO-PATH
