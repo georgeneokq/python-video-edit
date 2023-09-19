@@ -5,6 +5,7 @@ import argparse
 import os
 from moviepy.editor import VideoFileClip
 from moviepy.video.fx.speedx import speedx
+from helper import get_basename_from_path
 from reverse import reverse
 from concatenate import concatenate
 from gif import convert_to_gif
@@ -14,8 +15,6 @@ concatenate_script = 'concatenate.py'
 gif_script = 'gif.py'
 DEFAULT_DURATION = 2
 
-def get_basename_from_path(file_path: str):
-    return os.path.basename(file_path).split('.')[0]
 
 
 if __name__ == '__main__':
@@ -43,11 +42,15 @@ if __name__ == '__main__':
     concatenated_video_path = f'{input_file_basename}-concat.mp4'
     concatenate([input_file_path, reversed_video_path], concatenated_video_path)
 
-    # Shorten to specified number of seconds, by default 2
-    final_duration = duration if duration is not None else DEFAULT_DURATION
     clip = VideoFileClip(concatenated_video_path)
+
+    # Shorten to specified number of seconds, by default 2.
+    final_duration = duration if duration is not None else DEFAULT_DURATION
+
     shortened_clip_path = f'{input_file_basename}-concat-shortened.mp4'
     shortened_clip: VideoFileClip = clip.fx(speedx, final_duration=final_duration)
+
+    print(f'\nGenerating boomerang with duration of {final_duration} seconds\n')
 
     # Write the shortened clip to file
     shortened_clip.write_videofile(shortened_clip_path)

@@ -55,7 +55,7 @@ def extract_frames(video_file, verbose=1):
     return filename, video_clip.fps
 
 
-def reverse_video(video_path, frames_path, video_fps, remove_extracted_frames=True):
+def reverse_video(frames_path, video_fps, remove_extracted_frames=True):
     frame_files = glob(os.path.join(frames_path, "*"))
 
     # sort by duration in descending order
@@ -74,6 +74,10 @@ def reverse_video(video_path, frames_path, video_fps, remove_extracted_frames=Tr
     # write the video file to disk
     output_filename = f"{frames_path}-reversed.mp4"
     image_sequence_clip.write_videofile(output_filename)
+
+    # Cleanup
+    image_sequence_clip.close()
+
     if remove_extracted_frames:
         # if set to True, then remove the folder that contain the extracted frames
         shutil.rmtree(frames_path)
@@ -85,11 +89,11 @@ def reverse_video(video_path, frames_path, video_fps, remove_extracted_frames=Tr
 # Returns the output path
 def reverse(output_video_path):
     frames_folder_path, video_fps = extract_frames(output_video_path)
-    return reverse_video(output_video_path, frames_folder_path, video_fps=video_fps)
+    return reverse_video(frames_folder_path, video_fps=video_fps)
 
 
 if __name__ == "__main__":
     import sys
     video_file = sys.argv[1]
     frames_folder_path, video_fps = extract_frames(video_file)
-    reverse_video(video_file, frames_folder_path, video_fps=video_fps)
+    reverse_video(frames_folder_path, video_fps=video_fps)
