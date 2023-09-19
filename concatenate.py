@@ -20,8 +20,14 @@ def concatenate(video_clip_paths, output_path, method="compose"):
     elif method == "compose":
         # concatenate the final video with the compose method provided by moviepy
         final_clip = concatenate_videoclips(clips, method="compose")
+
     # write the output video file
     final_clip.write_videofile(output_path)
+
+    # Close the VideoFileClip objects
+    final_clip.close()
+    for clip in clips:
+        clip.close()
 
 
 if __name__ == "__main__":
