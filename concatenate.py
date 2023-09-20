@@ -1,34 +1,24 @@
 from moviepy.editor import concatenate_videoclips, VideoFileClip
+import json
+import subprocess
+import os
 
+with open('config.json') as config_file:
+    config = json.load(config_file)
 
-def concatenate(video_clip_paths, output_path, method="compose"):
-    """Concatenates several video files into one video file
-    and save it to `output_path`. Note that extension (mp4, etc.) must be added to `output_path`
-    `method` can be either 'compose' or 'reduce':
-        `reduce`: Reduce the quality of the video to the lowest quality on the list of `video_clip_paths`.
-        `compose`: type help(concatenate_videoclips) for the info"""
-    # create VideoFileClip object for each video file
-    clips = [VideoFileClip(c) for c in video_clip_paths]
-    if method == "reduce":
-        # calculate minimum width & height across all clips
-        min_height = min([c.h for c in clips])
-        min_width = min([c.w for c in clips])
-        # resize the videos to the minimum
-        clips = [c.resize(newsize=(min_width, min_height)) for c in clips]
-        # concatenate the final video
-        final_clip = concatenate_videoclips(clips)
-    elif method == "compose":
-        # concatenate the final video with the compose method provided by moviepy
-        final_clip = concatenate_videoclips(clips, method="compose")
+ffmpeg_path = os.path.join(os.getcwd(), config['ffmpeg_path'])
+print('[INFO] Using ffmpeg binary from: {}'.format(ffmpeg_path))
+
+def concatenate(video_clip_paths, output_path):
+    # TODO: Assert same dimensions for all videos
+    video_path_args = ' '.join([f'-i {file_path}' for file_path in video_clip_paths])
+    va_args = ' '.join([f'[{i}:v] [{i}:a]' for i in range(len(video_clip_paths))])
+    
+    command = f'{ffmpeg_path} {video_path_args} -filter_complex "{va_args} concat=n={len(video_clip_paths)}:v=1:a=1 [v] [a]" -map "[v]" -map "[a]" {output_path}'
+    print(command)
 
     # write the output video file
-    final_clip.write_videofile(output_path)
-
-    # Close the VideoFileClip objects
-    final_clip.close()
-    for clip in clips:
-        clip.close()
-
+    subprocess.call(command, shell=True)
 
 if __name__ == "__main__":
     import argparse
@@ -40,5 +30,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     clips = args.clips
     output_path = args.output
-    method = "compose"
-    concatenate(clips, output_path, method)
+    concatenate(clips, output_path)
+
+    print(f"Concatenated video written to {output_path}")

@@ -24,7 +24,7 @@ def format_timedelta(td):
 
 def extract_frames(video_file, verbose=1):
     # Load the video clip
-    video_clip = VideoFileClip(video_file)
+    video_clip = VideoFileClip(video_file, fps_source='fps')
 
     # Make a folder by the name of the video file
     filename, _ = os.path.splitext(video_file)
