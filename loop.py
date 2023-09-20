@@ -1,9 +1,6 @@
 import argparse
 from moviepy.editor import *
-
-
-def get_basename_from_path(file_path: str):
-    return os.path.basename(file_path).split('.')[0]
+from helper import get_basename_from_path
 
 
 def loop_video(video_path, loop_count):

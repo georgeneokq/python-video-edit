@@ -14,6 +14,7 @@ from moviepy.editor import *
 import json
 import numpy as np
 from scipy.io.wavfile import write as wav_write
+from helper import get_basename_from_path
 
 with open('config.json') as config_file:
     config = json.load(config_file)
@@ -21,8 +22,6 @@ with open('config.json') as config_file:
 ffmpeg_path = path.join(os.getcwd(), config['ffmpeg_path'])
 print('[INFO] Using ffmpeg binary from: {}'.format(ffmpeg_path))
 
-def get_basename_from_path(file_path: str):
-    return os.path.basename(file_path).split('.')[0]
 
 # t is either negative or positive. If positive, the audio will start earlier
 # If negative, audio will start later
