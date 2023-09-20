@@ -1,7 +1,7 @@
 from moviepy.editor import VideoFileClip
 import sys
 import os
-
+import argparse
 
 def convert_to_gif(video_path, output_path):
     video = VideoFileClip(video_path)
@@ -10,6 +10,10 @@ def convert_to_gif(video_path, output_path):
 
 
 if __name__ == '__main__':
-    video_path = sys.argv[1]
+    parser = argparse.ArgumentParser()
+    parser.add_argument('input_file', type=str)
+    args = parser.parse_args()
+
+    video_path = args.input_file
     output_path = f'{os.path.basename(video_path).split(".")[0]}.gif'
     convert_to_gif(video_path, output_path)
