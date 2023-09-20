@@ -36,12 +36,9 @@ if __name__ == "__main__":
         description="Simple Video Concatenation script in Python with MoviePy Library")
     parser.add_argument("-c", "--clips", nargs="+",
                         help="List of audio or video clip paths")
-    parser.add_argument("-r", "--reduce", action="store_true", 
-                        help="Whether to use the `reduce` method to reduce to the lowest quality on the resulting clip")
     parser.add_argument("-o", "--output", help="Output file name")
     args = parser.parse_args()
     clips = args.clips
     output_path = args.output
-    reduce = args.reduce
-    method = "reduce" if reduce else "compose"
+    method = "compose"
     concatenate(clips, output_path, method)
