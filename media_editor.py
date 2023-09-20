@@ -21,6 +21,9 @@ with open('config.json') as config_file:
 ffmpeg_path = path.join(os.getcwd(), config['ffmpeg_path'])
 print('[INFO] Using ffmpeg binary from: {}'.format(ffmpeg_path))
 
+def get_basename_from_path(file_path: str):
+    return os.path.basename(file_path).split('.')[0]
+
 # t is either negative or positive. If positive, the audio will start earlier
 # If negative, audio will start later
 def seek_audio(src_audio_path, seek_time):
@@ -54,7 +57,7 @@ def seek_audio(src_audio_path, seek_time):
     return new_file_path
 
 
-def sep_audio_video(src_file_path, output_folder='output'):
+def sep_audio_video(src_file_path, output_folder='.'):
     file_count = len(os.listdir(output_folder)) # File count in output folder
     new_file_name = '{}.wav'.format(file_count + 1)
     new_file_path = path.join(output_folder, new_file_name)
@@ -63,12 +66,17 @@ def sep_audio_video(src_file_path, output_folder='output'):
     return new_file_path
 
 
-def combine_audio_video(src_video_path, src_audio_path, output_folder='output'):
-    file_count = len(os.listdir(output_folder)) # File count in output folder
-    new_video_file_name = '{}.mp4'.format(file_count)
-    new_video_file_path = path.join(output_folder, new_video_file_name)
+def combine_audio_video(src_video_path, src_audio_path) -> str:
+    """
+    Combines video and audio
+
+    Returns:
+        str: output file path
+    """
+    video_file_name = get_basename_from_path(src_video_path)
+    new_video_file_name = f'{video_file_name}-combined.mp4'
     src_videoclip = VideoFileClip(src_video_path)
     src_audioclip = AudioFileClip(src_audio_path)
     new_videoclip = src_videoclip.set_audio(src_audioclip)
-    new_videoclip.write_videofile(new_video_file_path)
-    os.remove(src_audio_path)
+    new_videoclip.write_videofile(new_video_file_name)
+    return path.join(os.getcwd(), new_video_file_name)
