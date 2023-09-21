@@ -6,6 +6,7 @@ from datetime import timedelta, datetime
 from glob import glob
 from tqdm import tqdm
 import shutil
+from typing import Literal
 
 SAVING_FRAMES_PER_SECOND = 60
 
@@ -56,7 +57,9 @@ def extract_frames(video_file, verbose=1):
     return filename, video_clip.fps
 
 
-def reverse_video(video_path, frames_path, video_fps, remove_extracted_frames=True):
+def reverse_video(video_path, audio_type: Literal['muted', 'duplicate'] = 'duplicate'):
+    frames_path, video_fps = extract_frames(video_file)
+
     frame_files = glob(os.path.join(frames_path, "*"))
 
     # sort by duration in descending order
@@ -69,8 +72,12 @@ def reverse_video(video_path, frames_path, video_fps, remove_extracted_frames=Tr
         saving_frames_per_second = video_fps
     print("Saving the video with FPS:", saving_frames_per_second)
 
-    # Prepare empty sound to attach to reversed video
-    audio = AudioFileClip(video_path).fx(volumex, 0)
+    # Prepare audio to attach to video.
+    # By default duplicate
+    audio = AudioFileClip(video_path)
+
+    if audio_type == 'muted':
+        audio = audio.fx(volumex, 0)
 
     # load the frames into a image sequence clip (MoviePy)
     image_sequence_clip = ImageSequenceClip(frame_files, fps=saving_frames_per_second)
@@ -83,9 +90,8 @@ def reverse_video(video_path, frames_path, video_fps, remove_extracted_frames=Tr
     # Cleanup
     image_sequence_clip.close()
 
-    if remove_extracted_frames:
-        # if set to True, then remove the folder that contain the extracted frames
-        shutil.rmtree(frames_path)
+    # remove the folder that contain the extracted frames
+    shutil.rmtree(frames_path)
 
     return output_filename
 
@@ -100,5 +106,4 @@ def reverse(output_video_path):
 if __name__ == "__main__":
     import sys
     video_file = sys.argv[1]
-    frames_folder_path, video_fps = extract_frames(video_file)
-    reverse_video(video_file, frames_folder_path, video_fps=video_fps)
+    reverse_video(video_file)
