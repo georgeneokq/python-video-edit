@@ -24,7 +24,7 @@ if __name__ == '__main__':
     loop_count = args.n
 
     if loop_count <= 0:
-        print("Loop count should greater than 0.")
+        print("Loop count should be greater than 0.")
         exit()
 
     loop_video(file_path, loop_count)
