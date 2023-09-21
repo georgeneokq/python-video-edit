@@ -6,7 +6,7 @@ import os
 from moviepy.editor import VideoFileClip
 from moviepy.video.fx.speedx import speedx
 from helper import get_basename_from_path
-from reverse import reverse
+from reverse import reverse_video
 from concatenate import concatenate
 from gif import convert_to_gif
 
@@ -14,7 +14,6 @@ reverse_script = 'reverse.py'
 concatenate_script = 'concatenate.py'
 gif_script = 'gif.py'
 DEFAULT_DURATION = 2
-
 
 
 if __name__ == '__main__':
@@ -36,7 +35,7 @@ if __name__ == '__main__':
         output_file_path = f'{input_file_basename}.gif'
 
     # Reverse
-    reversed_video_path = reverse(input_file_path)
+    reversed_video_path = reverse_video(input_file_path)
 
     # Concatenate
     concatenated_video_path = f'{input_file_basename}-concat.mp4'
