@@ -1,4 +1,5 @@
-from moviepy.editor import VideoFileClip, ImageSequenceClip
+from moviepy.editor import VideoFileClip, AudioFileClip, ImageSequenceClip
+from moviepy.audio.fx.volumex import volumex
 import numpy as np
 import os
 from datetime import timedelta, datetime
@@ -55,7 +56,7 @@ def extract_frames(video_file, verbose=1):
     return filename, video_clip.fps
 
 
-def reverse_video(frames_path, video_fps, remove_extracted_frames=True):
+def reverse_video(video_path, frames_path, video_fps, remove_extracted_frames=True):
     frame_files = glob(os.path.join(frames_path, "*"))
 
     # sort by duration in descending order
@@ -68,8 +69,12 @@ def reverse_video(frames_path, video_fps, remove_extracted_frames=True):
         saving_frames_per_second = video_fps
     print("Saving the video with FPS:", saving_frames_per_second)
 
+    # Prepare empty sound to attach to reversed video
+    audio = AudioFileClip(video_path).fx(volumex, 0)
+
     # load the frames into a image sequence clip (MoviePy)
     image_sequence_clip = ImageSequenceClip(frame_files, fps=saving_frames_per_second)
+    image_sequence_clip = image_sequence_clip.set_audio(audio)
 
     # write the video file to disk
     output_filename = f"{frames_path}-reversed.mp4"
@@ -89,11 +94,11 @@ def reverse_video(frames_path, video_fps, remove_extracted_frames=True):
 # Returns the output path
 def reverse(output_video_path):
     frames_folder_path, video_fps = extract_frames(output_video_path)
-    return reverse_video(frames_folder_path, video_fps=video_fps)
+    return reverse_video(output_video_path, frames_folder_path, video_fps=video_fps)
 
 
 if __name__ == "__main__":
     import sys
     video_file = sys.argv[1]
     frames_folder_path, video_fps = extract_frames(video_file)
-    reverse_video(frames_folder_path, video_fps=video_fps)
+    reverse_video(video_file, frames_folder_path, video_fps=video_fps)
