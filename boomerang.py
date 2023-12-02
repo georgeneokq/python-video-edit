@@ -5,7 +5,7 @@ import argparse
 import os
 from moviepy.editor import VideoFileClip
 from moviepy.video.fx.speedx import speedx
-from helper import get_basename_from_path
+from helper import get_basename_from_path, multiglob
 from reverse import reverse_video
 from concatenate import concatenate
 from gif import convert_to_gif
@@ -18,50 +18,53 @@ DEFAULT_DURATION = 2
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('input_file', type=str)
-    parser.add_argument('-o', '--output', type=str, required=False, help="Output file path")
+    parser.add_argument('input_files', type=str, nargs='+')
     parser.add_argument('-k', '--keep', action='store_true', help='Keep files used to generate the final GIF')
     parser.add_argument('-d', '--duration', type=float, help='Total duration of boomerang, default 2s')
     args = parser.parse_args()
 
-    input_file_path = args.input_file
-    output_file_path = args.output
+    input_files = args.input_files
     keep = args.keep
     duration = args.duration
 
-    input_file_basename = get_basename_from_path(input_file_path)
+    input_files = multiglob(input_files)
+    joined_files_str = '\n'.join(input_files)
+    print(f'Processing files:\n{joined_files_str}')
 
-    if output_file_path is None:
-        output_file_path = f'{input_file_basename}.gif'
+    for input_file in input_files:
+        input_file_basename = get_basename_from_path(input_file)
 
-    # Reverse
-    reversed_video_path = reverse_video(input_file_path)
+        parent_folders = os.path.dirname(input_file)
+        output_file_path = os.path.join(parent_folders, f'{input_file_basename}.gif')
 
-    # Concatenate
-    concatenated_video_path = f'{input_file_basename}-concat.mp4'
-    concatenate([input_file_path, reversed_video_path], concatenated_video_path)
+        # Reverse
+        reversed_video_path = reverse_video(input_file)
 
-    clip = VideoFileClip(concatenated_video_path)
+        # Concatenate
+        concatenated_video_path = f'{input_file_basename}-concat.mp4'
+        concatenate([input_file, reversed_video_path], concatenated_video_path)
 
-    # Shorten to specified number of seconds, by default 2.
-    final_duration = duration if duration is not None else DEFAULT_DURATION
+        clip = VideoFileClip(concatenated_video_path)
 
-    shortened_clip_path = f'{input_file_basename}-concat-shortened.mp4'
-    shortened_clip: VideoFileClip = clip.fx(speedx, final_duration=final_duration)
+        # Shorten to specified number of seconds, by default 2.
+        final_duration = duration if duration is not None else DEFAULT_DURATION
 
-    print(f'\nGenerating boomerang with duration of {final_duration} seconds\n')
+        shortened_clip_path = f'{input_file_basename}-concat-shortened.mp4'
+        shortened_clip: VideoFileClip = clip.fx(speedx, final_duration=final_duration)
 
-    # Write the shortened clip to file
-    shortened_clip.write_videofile(shortened_clip_path)
+        print(f'\nGenerating boomerang with duration of {final_duration} seconds\n')
 
-    # Cleanup
-    clip.close()
-    shortened_clip.close()
+        # Write the shortened clip to file
+        shortened_clip.write_videofile(shortened_clip_path)
 
-    # Convert to gif
-    convert_to_gif(shortened_clip_path, output_file_path)
+        # Cleanup
+        clip.close()
+        shortened_clip.close()
 
-    if not keep:
-        os.remove(reversed_video_path)
-        os.remove(concatenated_video_path)
-        os.remove(shortened_clip_path)
+        # Convert to gif
+        convert_to_gif(shortened_clip_path, output_file_path)
+
+        if not keep:
+            os.remove(reversed_video_path)
+            os.remove(concatenated_video_path)
+            os.remove(shortened_clip_path)
