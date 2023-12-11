@@ -6,4 +6,5 @@ venv
 *.gif
 *.mov
 *.jpg
+*.png
 rename_history.json
